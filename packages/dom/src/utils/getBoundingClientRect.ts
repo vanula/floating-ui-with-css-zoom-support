@@ -30,6 +30,9 @@ export function getBoundingClientRect(
     }
   }
 
+  // Get CSS zoom
+  const cssZoom = parseFloat(getComputedStyle(domElement).zoom) || 1;
+
   const visualOffsets = shouldAddVisualOffsets(
     domElement,
     isFixedStrategy,
@@ -38,10 +41,11 @@ export function getBoundingClientRect(
     ? getVisualOffsets(domElement)
     : createCoords(0);
 
-  let x = (clientRect.left + visualOffsets.x) / scale.x;
-  let y = (clientRect.top + visualOffsets.y) / scale.y;
-  let width = clientRect.width / scale.x;
-  let height = clientRect.height / scale.y;
+  // Adapt positions and dimensions with the scale and zoom
+  let x = (clientRect.left + visualOffsets.x) / (scale.x * cssZoom);
+  let y = (clientRect.top + visualOffsets.y) / (scale.y * cssZoom);
+  let width = clientRect.width / (scale.x * cssZoom);
+  let height = clientRect.height / (scale.y * cssZoom);
 
   if (domElement) {
     const win = getWindow(domElement);
@@ -62,7 +66,8 @@ export function getBoundingClientRect(
           iframeScale.x;
       const top =
         iframeRect.top +
-        (currentIFrame.clientTop + parseFloat(css.paddingTop)) * iframeScale.y;
+        (currentIFrame.clientTop + parseFloat(css.paddingTop)) *
+          iframeScale.y;
 
       x *= iframeScale.x;
       y *= iframeScale.y;
